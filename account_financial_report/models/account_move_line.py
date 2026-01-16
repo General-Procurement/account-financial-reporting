@@ -10,11 +10,14 @@ class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
     analytic_account_ids = fields.Many2many(
-        "account.analytic.account", compute="_compute_analytic_account_ids", store=True
+        "account.analytic.account", compute="_compute_analytic_account_ids", store=False
     )
 
     @api.depends("analytic_distribution")
     def _compute_analytic_account_ids(self):
+        for record in self:
+            record.analytic_account_ids = False
+        return
         # Prefetch all involved analytic accounts
         batch_by_analytic_account = defaultdict(lambda: self.env["account.move.line"])
         for record in self.filtered("analytic_distribution"):
